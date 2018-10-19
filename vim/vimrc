@@ -22,4 +22,5 @@ set novisualbell
 set noswapfile
 set nowritebackup
 set number
+set ruler
 set showmatch
