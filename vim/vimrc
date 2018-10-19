@@ -16,6 +16,7 @@ Plugin 'tpope/vim-sensible'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'vim-syntastic/syntastic'
+Plugin 'vimwiki/vimwiki'                 " vim wiki!
 call vundle#end()
 filetype plugin indent on
 set backspace=eol,start,indent
