@@ -27,3 +27,4 @@ set showmatch
 set smartindent
 set splitbelow
 set splitright
+set ttimeoutlen=50
