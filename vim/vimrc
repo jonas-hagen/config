@@ -12,6 +12,7 @@ Plugin 'scrooloose/nerdtree'             " file browser for vim
 Plugin 'scrooloose/nerdcommenter'        " comment plugin
 Plugin 'shime/vim-livedown'              " live markdown preview
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-sensible'
 call vundle#end()
 filetype plugin indent on
 set backspace=eol,start,indent
