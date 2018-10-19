@@ -17,5 +17,6 @@ set laststatus=2
 set magic
 set mat=2
 set mouse=r
-set nobackup
+set noerrorbells
+set novisualbell
 set showmatch
