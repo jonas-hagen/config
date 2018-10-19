@@ -3,7 +3,6 @@ filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'ambv/black'			 " uncompromising Python code formatter
 Plugin 'ctrlpvim/ctrlp.vim'              " fasd-like file editing
 Plugin 'davidhalter/jedi-vim'
 Plugin 'editorconfig/editorconfig-vim'
