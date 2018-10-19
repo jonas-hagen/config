@@ -19,4 +19,6 @@ set mat=2
 set mouse=r
 set noerrorbells
 set novisualbell
+set noswapfile
+set nowritebackup
 set showmatch
