@@ -14,3 +14,4 @@ set hlsearch
 set incsearch
 set lazyredraw
 set laststatus=2
+set magic
