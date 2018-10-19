@@ -84,3 +84,7 @@ let g:syntastic_python_flake8_args ='--doctests --ignore=E123,E203,E221,E222,E24
 augroup black
     autocmd BufWritePre *.py execute ':Black'
 augroup END
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
