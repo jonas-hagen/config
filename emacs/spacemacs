@@ -46,6 +46,8 @@ values."
      git
      markdown
      tmux
+     (wakatime :variables
+               wakatime-python-bin "/usr/bin/python3")
      ;; org
      ;; (shell :variables
      ;;        shell-default-height 30
