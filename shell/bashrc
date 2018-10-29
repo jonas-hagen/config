@@ -117,5 +117,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# Conda commands
+# virtualenv commands
 . $HOME/miniconda3/etc/profile.d/conda.sh
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+. /usr/local/bin/virtualenvwrapper.sh

@@ -100,3 +100,5 @@ alias emacs="emacs -nw"
 
 # Conda commands
 . $HOME/miniconda3/etc/profile.d/conda.sh
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+. /usr/local/bin/virtualenvwrapper.sh
