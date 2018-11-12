@@ -1,27 +1,27 @@
 # Configuration
 
-Configures my Dell Latitude (Dectris Laptop).
+Configures my favourite applications.
 
 ## Installation
 
 Run the following commands:
+
 ```shell
-$ cd `~/.config` && \
+$ cd `~/.myconfig` && \
   git init . && \
-  git remote add origin git@github.com:escodebar/config.git && \
+  git remote add origin git@github.com:jonas-hagen/config.git && \
   git fetch && \
-  git checkout DECTRIS
+  git checkout astinus
 ```
 
 ## Settings
 
-### Editorconfig
+### Emacs (Spacemacs)
 
-The `.editorconfig` file is never read out of `.config`.
-Create a symbolic link to tell your editor to use this configuration:
+Install Emacs and [Spacemacs](http://spacemacs.org).
 
 ```shell
-$ ln -s ~/.config/editorconfig/config ~/.editorconfig
+ln -s ~/.myconfig/emacs/spacemacs ~/.spacemacs
 ```
 
 ### Vim
