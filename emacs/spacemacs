@@ -30,8 +30,15 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(javascript
+   '(ansible
+     sql
+     finance
+     csv
+     rust
+     go
+     javascript
      yaml
+     salt
      markdown
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -44,6 +51,9 @@ values."
      ;; better-defaults
      emacs-lisp
      git
+     latex
+     pdf
+     terraform
      ;; markdown
      (syntax-checking :variables flycheck-flake8rc "~/.config/flake8")
      (python :variables python-test-runner 'pytest)
@@ -54,6 +64,8 @@ values."
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
+     (mu4e :variables
+           mu4e-installation-path "/usr/share/emacs/site-lisp")
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -326,8 +338,44 @@ you should place your code here."
     (if (buffer-file-name)
         (abbreviate-file-name (buffer-file-name))
       (powerline-buffer-id)))
-  )
+  (setq racer-rust-src-path "/home/jonas/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
+  (setq mu4e-maildir (expand-file-name "~/Maildir")
+        mu4e-get-mail-command "mbsync -a")
 
+  ;; mu4e-context
+  (with-eval-after-load 'mu4e
+                               (setq mu4e-contexts
+                                     (list
+                                      (make-mu4e-context
+                                       :name "peronal" ;;for acc1-gmail
+                                       :enter-func (lambda () (mu4e-message "Entering context personal"))
+                                       :leave-func (lambda () (mu4e-message "Leaving context personal"))
+                                       :match-func (lambda (msg)
+                                                     (when msg
+                                                       (mu4e-message-contact-field-matches
+                                                        msg '(:from :to :cc :bcc) "jonas.hagen3@gmail.com")))
+                                       :vars '((user-mail-address . "jonas.hagen3@gmail.com")
+                                               (user-full-name . "Jonas Hagen")
+                                               (mu4e-sent-folder . "/jh3-gmail/[jh3].Sent")
+                                               (mu4e-drafts-folder . "/drafts")
+                                               (mu4e-trash-folder . "/jh3-gmail/[jh3].Bin")
+                                               (mu4e-compose-format-flowed . t)
+                                               (smtpmail-queue-dir . "~/Maildir/queue")
+                                               (message-send-mail-function . smtpmail-send-it)
+                                               (smtpmail-starttls-credentials . (("smtp.gmail.com" 587 nil nil)))
+                                               (smtpmail-auth-credentials . (expand-file-name "~/.authinfo"))
+                                               (smtpmail-default-smtp-server . "smtp.gmail.com")
+                                               (smtpmail-smtp-server . "smtp.gmail.com")
+                                               (smtpmail-smtp-service . 587)
+                                               (smtpmail-debug-info . t)
+                                               (smtpmail-debug-verbose . t)
+                                               (mu4e-maildir-shortcuts . ( ("/jh3-gmail/INBOX"            . ?i)
+                                                                           ("/jh3-gmail/[jh3].Sent" . ?s)
+                                                                           ("/jh3-gmail/[jh3].Bin"       . ?t)
+                                                                           ("/jh3-gmail/[jh3].All"  . ?a)
+                                                                           ("/jh3-gmail/[jh3].Starred"   . ?r)
+                                                                           ("/drafts"    . ?d)
+                                                                           ))))))))
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
 (custom-set-variables
@@ -354,9 +402,10 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (json-navigator hierarchy json-mode json-snatcher json-reformat company-tern flycheck-pos-tip pos-tip flycheck helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell mmm-mode markdown-toc markdown-mode gh-md yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download magit-gitflow live-py-mode hy-mode dash-functional htmlize helm-pydoc helm-gitignore gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor ein skewer-mode request-deferred auto-complete websocket deferred js2-mode simple-httpd cython-mode anaconda-mode pythonic ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (sqlup-mode sql-indent flycheck-pos-tip pos-tip flycheck helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda company auto-yasnippet yasnippet ac-ispell mmm-mode markdown-toc markdown-mode gh-md yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download magit-gitflow live-py-mode hy-mode dash-functional htmlize helm-pydoc helm-gitignore gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor ein skewer-mode request-deferred auto-complete websocket deferred js2-mode simple-httpd cython-mode anaconda-mode pythonic ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
