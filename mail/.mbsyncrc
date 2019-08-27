@@ -1,0 +1,24 @@
+Create Slave
+Expunge Both
+SyncState *
+
+IMAPAccount iap
+Host mail.campus.unibe.ch
+User jhagen
+PassCmd "pass show email/iap"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+PipelineDepth 1
+
+IMAPStore iap-remote
+Account iap
+
+MaildirStore iap-local
+Path ~/Maildir/iap/
+Inbox ~/Maildir/iap/INBOX
+Flatten .
+
+Channel IAP 
+Master :iap-remote:
+Slave :iap-local:
+Patterns *

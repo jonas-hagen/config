@@ -26,17 +26,22 @@ This function should only modify configuration layer settings."
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
 
-   ;; If non-nil layers with lazy install support are lazy installed.
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(go
+   '(octave
+     csv
+     rust
+     go
      yaml
      javascript
      html
+     latex
+     pandoc
+     pdf
      helm
      (auto-completion :variables
                       flycheck-flake8rc "~/.config/flake8")
@@ -44,16 +49,29 @@ This function should only modify configuration layer settings."
      finance
      (python :variables
              python-test-runner 'pytest)
+     ipython-notebook
      syntax-checking
      git
      markdown
      tmux
-     (wakatime :variables
-               wakatime-python-bin "/usr/bin/python3")
-     org
+     (org :variables
+          org-enable-org-journal-support t
+          org-want-todo-bindings t)
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
+     spell-checking
+     (mu4e :variables
+           mu4e-maildir (expand-file-name "~/Maildir")
+           mu4e-get-mail-command "mbsync -a"
+           mu4e-installation-path "/usr/share/emacs/site-lisp"
+           mu4e-update-interval 300
+           mu4e-enable-notifications t
+           mu4e-headers-skip-duplicates t
+           mu4e-change-filenames-when-moving t
+           mu4e-use-maildirs t
+           message-citation-line-format "On %a %d %b %Y at %R, %f wrote:\n"
+           message-citation-line-function 'message-insert-formatted-citation-line)
      )
 
    ;; List of additional packages that will be installed without being
@@ -66,6 +84,8 @@ This function should only modify configuration layer settings."
    dotspacemacs-additional-packages
    '(
      blacken
+     (ospl-mode :location local)
+     unfill
      )
 
    ;; A list of packages that cannot be updated.
@@ -97,10 +117,10 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil)
    dotspacemacs-enable-emacs-pdumper nil
 
-   ;; File path pointing to emacs 27.1 executable compiled with support
-   ;; for the portable dumper (this is currently the branch pdumper).
-   ;; (default "emacs-27.0.50")
-   dotspacemacs-emacs-pdumper-executable-file "emacs-27.0.50"
+   ;; Name of executable file pointing to emacs 27+. This executable must be
+   ;; in your PATH.
+   ;; (default "emacs")
+   dotspacemacs-emacs-pdumper-executable-file "emacs"
 
    ;; Name of the Spacemacs dump file. This is the file will be created by the
    ;; portable dumper in the cache directory under dumps sub-directory.
@@ -134,8 +154,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
-   ;; (default nil)
-   dotspacemacs-verify-spacelpa-archives nil
+   ;; (default t)
+   dotspacemacs-verify-spacelpa-archives t
 
    ;; If non-nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
@@ -156,9 +176,6 @@ It should only modify the values of Spacemacs settings."
    ;; (default 'vim)
    dotspacemacs-editing-style 'vim
 
-   ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
-   dotspacemacs-verbose-loading nil
-
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
    ;; banner, `random' chooses a random text banner in `core/banners'
@@ -178,6 +195,11 @@ It should only modify the values of Spacemacs settings."
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
+
+   ;; Default major mode for a new empty buffer. Possible values are mode
+   ;; names such as `text-mode'; and `nil' to use Fundamental mode.
+   ;; (default `text-mode')
+   dotspacemacs-new-empty-buffer-major-mode 'text-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
@@ -205,8 +227,7 @@ It should only modify the values of Spacemacs settings."
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
-   ;; quickly tweak the mode-line size to make separators look not too crappy.
+   ;; Default font or prioritized list of fonts.
    dotspacemacs-default-font '("Source Code Pro"
                                :size 13
                                :weight normal
@@ -311,6 +332,11 @@ It should only modify the values of Spacemacs settings."
    ;; (default nil) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup nil
 
+   ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
+   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
+   ;; borderless fullscreen. (default nil)
+   dotspacemacs-undecorated-at-startup nil
+
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
@@ -338,10 +364,14 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smooth-scrolling t
 
    ;; Control line numbers activation.
-   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
-   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
+   ;; `prog-mode' and `text-mode' derivatives. If set to `relative', line
+   ;; numbers are relative. If set to `visual', line numbers are also relative,
+   ;; but lines are only visual lines are counted. For example, folded lines
+   ;; will not be counted and wrapped lines are counted as multiple lines.
    ;; This variable can also be set to a property list for finer control:
    ;; '(:relative nil
+   ;;   :visual nil
    ;;   :disabled-for-modes dired-mode
    ;;                       doc-view-mode
    ;;                       markdown-mode
@@ -349,6 +379,7 @@ It should only modify the values of Spacemacs settings."
    ;;                       pdf-view-mode
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
+   ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers nil
 
@@ -361,7 +392,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-smartparens-strict-mode nil
 
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
-   ;; over any automatically added closing parenthesis, bracket, quote, etc…
+   ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
 
@@ -460,7 +491,70 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
   ;; (add-hook 'python-mode-hook 'blacken-mode)
   (spacemacs/set-leader-keys-for-major-mode 'python-mode "b" 'blacken-buffer)
-  )
+  (setq org-journal-dir "/iap/share/MW/users/hagen/journal/")
+  (add-hook 'doc-view-mode-hook 'auto-revert-mode)
+  (setq latex-enable-auto-fill nil)
+  (setq confirm-kill-emacs 'y-or-n-p)
+  (add-hook 'latex-mode 'ospl-mode)
+  (with-eval-after-load 'org
+    (setq org-agenda-files (directory-files-recursively "~/projects/notes/" "\.org$"))
+    (setq org-capture-templates
+          '(("t" "Todo" entry (file+headline "~/projects/notes/inbox.org" "Tasks")
+             "* TODO %?\n  %i\n  %a")
+            ("j" "Journal" entry (file+olp+datetree "~/projects/notes/journal.org")
+             "* %?\nEntered on %U\n  %i\n  %a"))))
+  (with-eval-after-load 'mu4e-alert
+    ;; Enable Desktop notifications
+    (mu4e-alert-set-default-style 'notifications))
+  ;; mu4e-context
+  (with-eval-after-load 'mu4e
+    (setq mu4e-contexts
+          (list
+           (make-mu4e-context
+            :name "IAP"
+            :enter-func (lambda () (mu4e-message "Entering context IAP"))
+            :leave-func (lambda () (mu4e-message "Leaving context IAP"))
+            :match-func (lambda (msg)
+                          (when msg
+                            (mu4e-message-contact-field-matches
+                             msg '(:from :to :cc :bcc) "jonas.hagen@iap.unibe.ch")))
+            :vars '((user-mail-address . "jonas.hagen@iap.unibe.ch")
+                    (user-full-name . "Jonas Hagen")
+                    (mu4e-sent-folder . "/iap/Sent")
+                    (mu4e-drafts-folder . "/drafts")
+                    (mu4e-trash-folder . "/iap/Trash")
+                    (mu4e-refile-folder . "/iap/Archives.2019")
+                    (mu4e-compose-format-flowed . t)
+                    (smtpmail-queue-dir . "~/Maildir/queue/cur")
+                    (message-send-mail-function . smtpmail-send-it)
+                    (smtpmail-starttls-credentials . (("mail.campus.unibe.ch" 587 nil nil)))
+                    ; (smtpmail-auth-credentials . (expand-file-name "~/.authinfo"))
+                    (smtpmail-default-smtp-server . "mail.campus.unibe.ch")
+                    (smtpmail-smtp-server . "mail.campus.unibe.ch")
+                    (smtpmail-smtp-service . 587)
+                    (smtpmail-debug-info . t)
+                    (smtpmail-debug-verbose . t)
+                    (mu4e-maildir-shortcuts . ( ("/iap/INBOX"            . ?i)
+                                                ("/iap/Sent" . ?s)
+                                                ("/iap/Trash"       . ?t)
+                                                ("/iap/Archives.2019"  . ?a)
+                                                ("/iap/Lists.ARTS"  . ?A)
+                                                ("/iap/Lists.Sysadmin"  . ?S)
+                                                ("/iap/Lists.Sysadmin Muted"  . ?M)
+                                                ("/queue/cur"   . ?q)
+                                                ("/drafts"    . ?d)))))))
+    (add-to-list 'mu4e-bookmarks
+                 (make-mu4e-bookmark
+                  :name "Messages with PDF document"
+                  :query "mime:application/pdf"
+                  :key ?d))
+    (add-to-list 'mu4e-bookmarks
+                 (make-mu4e-bookmark
+                  :name  "Flagged Messagges"
+                  :query "flag:flagged"
+                  :key ?f))
+    ;(mu4e-headers-change-sorting :date 'ascending)
+  ))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -471,7 +565,7 @@ before packages are loaded."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot flycheck-pos-tip pos-tip flycheck-ledger flycheck wakatime-mode ledger-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode hy-mode dash-functional helm-pydoc helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor cython-mode company-statistics company-anaconda company auto-yasnippet yasnippet anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot flycheck-pos-tip pos-tip flycheck-ledger flycheck ledger-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode hy-mode dash-functional helm-pydoc helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor cython-mode company-statistics company-anaconda company auto-yasnippet yasnippet anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -493,23 +587,20 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (lsp-go lsp-mode helm-gtags godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc ggtags flycheck-gometalinter flycheck-golangci-lint counsel-gtags company-go go-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot flycheck-pos-tip pos-tip flycheck-ledger flycheck wakatime-mode ledger-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode hy-mode dash-functional helm-pydoc helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor cython-mode company-statistics company-anaconda company auto-yasnippet yasnippet anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (mu4e-maildirs-extension mu4e-alert helm-mu web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc company-tern tern coffee-mode org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot flycheck-pos-tip pos-tip flycheck-ledger flycheck ledger-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data yapfify smeargle pyvenv pytest pyenv-mode py-isort pip-requirements orgit mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode hy-mode dash-functional helm-pydoc helm-gitignore helm-company helm-c-yasnippet gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy evil-magit magit magit-popup git-commit ghub treepy let-alist graphql with-editor cython-mode company-statistics company-anaconda company auto-yasnippet yasnippet anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(safe-local-variable-values
    (quote
     ((eval add-hook
            (quote before-save-hook)
            (function blacken-buffer)
            nil t)
-     (lambda nil
-       (add-hook
-        (quote before-save-hook)
-        (quote blacken-buffer)
-        nil
-        (quote local)))
      (javascript-backend . tern)
-     (javascript-backend . lsp)))))
+     (javascript-backend . lsp)
+     (go-backend . go-mode)
+     (go-backend . lsp)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
