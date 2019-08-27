@@ -396,6 +396,7 @@ you should place your code here."
                   :name  "Flagged Messagges"
                   :query "flag:flagged"
                   :key ?f))
+    (define-key mu4e-main-mode-map (kbd "I") 'mu4e-update-index)
     ;(mu4e-headers-change-sorting :date 'ascending)
     )
   )
