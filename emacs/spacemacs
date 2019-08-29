@@ -554,6 +554,9 @@ before packages are loaded."
                   :query "flag:flagged"
                   :key ?f))
     ;(mu4e-headers-change-sorting :date 'ascending)
+    (define-key mu4e-main-mode-map (kbd "I") 'mu4e-update-index)
+    (add-to-list 'mu4e-view-actions
+                 '("go to url" . mu4e-view-go-to-url) t)
   ))
 
 ;; Do not write anything past this comment. This is where Emacs will
